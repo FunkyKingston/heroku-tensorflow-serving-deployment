@@ -46,8 +46,8 @@ tensorflow_model_server --port=8500 --rest_api_port=$PORT \
 "$@"' > /usr/bin/tf_serving_entrypoint.sh \
 && chmod +x /usr/bin/tf_serving_entrypoint.sh
 
+# Copy the TensorFlow "SavedModel" into the image
+COPY saved_model_half_plus_two_cpu /${MODEL_BASE_PATH}/${MODEL_NAME}
 
 # CMD is required to run on Heroku
 CMD ["/usr/bin/tf_serving_entrypoint.sh"]
-
-COPY saved_model_half_plus_two_cpu /models/${MODEL_NAME}
