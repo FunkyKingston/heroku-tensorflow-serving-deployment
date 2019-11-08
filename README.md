@@ -1,6 +1,6 @@
 # heroku-tensorflow-serving-deployment
 
-This repo demonstrates *TensorFlow Serving with Docker*, including deploying the given Docker container to Heroku. Deploying to Heroku requires some slight changes from the standard TensorFlow Serving getting started example (at https://www.tensorflow.org/tfx/serving/docker). Specifically, we need to use the *$PORT* that Heroku provides (as per described at https://devcenter.heroku.com/articles/runtime-principles#web-servers). 
+This repo demonstrates *TensorFlow Serving with Docker*, including deploying the given Docker image to Heroku. Deploying to Heroku requires some slight changes from the standard TensorFlow Serving "getting started example" (at https://www.tensorflow.org/tfx/serving/docker). Specifically, we need to use the *$PORT* environment variable that Heroku provides (as per described at https://devcenter.heroku.com/articles/runtime-principles#web-servers). 
 
 Inside the TensorFlow Serving Docker image, the *tensorflow_model_server* will be started and it will listen to requests. These are *predict requests*, sent to a particular machine learning model that is hosted by the model server. The job of the model is to output a prediction, based on the (json-formatted) input data that it receives. 
 
@@ -16,7 +16,7 @@ The Dockerfile ends with executing `CMD ["/usr/bin/tf_serving_entrypoint.sh"]`. 
 
 Thus, the entrypoint script starts the tensorflow_model_server and tells it to receive requests using its REST API on the *$PORT* designated by Heroku (in other words, we cannot use the default 8501). 
 
-In the Dockerfile we have could specify environment variables `MODEL_BASE_PATH` and `MODEL_NAME`. They are used as input when starting tensorflow_model_server, and will affect the URL to which we send requests, and can be used to clarify what model we are communicating with. For this example, however, they are just set as their defaults, `/models` and `model`, respectively. 
+In the Dockerfile we can specify environment variables `MODEL_BASE_PATH` and `MODEL_NAME`. They are used as input when starting tensorflow_model_server, and will affect the URL to which we send requests. Thus, they can be used to clarify what model we are communicating with. For this example, however, they are just set as their defaults, `/models` and `model`, respectively. 
 
 
 ### Choosing a TensorFlow model and copying it into the image
@@ -30,7 +30,13 @@ In our Dockerfile, this model is copied into the image by `COPY saved_model_half
 
 ## Deploy to Heroku
 
+Login to Heroku as well as its container registry.
+
+`heroku login`
+
 `heroku container:login`
+
+Create a new Heroku app, here named *funky-tensorflow-serving*. Push the image to the container registry and release it to the app.
 
 `heroku create funky-tensorflow-serving`
 
@@ -38,10 +44,15 @@ In our Dockerfile, this model is copied into the image by `COPY saved_model_half
 
 `heroku container:release web --app funky-tensorflow-serving`
 
-https://funky-tensorflow-serving.herokuapp.com/v1/models/model
+In a browser, check out https://funky-tensorflow-serving.herokuapp.com/v1/models/model. This is equivalent to sending a *GET* request to the particular URL. Thus, we can see that the app is online. Next up, putting it to use!
 
 
 ## Query the deployed TensorFlow model using the predict API
 
 To send a predict request to the deployed model, in a terminal, run:
-`curl -d '{"instances": [1.0, 2.0, 5.0]}' -X POST http://funkykingston.herokuapp.com/v1/models/model:predict.`
+
+`curl -d '{"instances": [1.0, 2.0, 5.0]}' -X POST http://funky-tensorflow-serving.herokuapp.com/v1/models/model:predict`
+
+This sends the data `{"instances": [1.0, 2.0, 5.0]}`, in accordance with the API format describe at https://www.tensorflow.org/tfx/serving/api_rest. The model that is serving us from within the deployed Docker container takes each input in the list of data and outputs the model's prediction for each input.
+
+Lo and behold! The predictions are returned as a reply to the sent requests, which means that we have successfully deployed a TensorFlow/Keras model, using Docker, online at Heroku.
