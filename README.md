@@ -36,22 +36,22 @@ Login to Heroku as well as its container registry.
 
 `heroku container:login`
 
-Create a new Heroku app, here named *funky-tensorflow-serving*. Push the image to the container registry and release it to the app.
+Create a new Heroku app, here named *funkykingston*. Push the image to the container registry and release it to the app.
 
-`heroku create funky-tensorflow-serving`
+`heroku create funkykingston`
 
-`heroku container:push web --app funky-tensorflow-serving`
+`heroku container:push web --app funkykingston`
 
-`heroku container:release web --app funky-tensorflow-serving`
+`heroku container:release web --app funkykingston`
 
-In a browser, check out https://funky-tensorflow-serving.herokuapp.com/v1/models/model. This is equivalent to sending a *GET* request to the particular URL. Thus, we can see that the app is online. Next up, putting it to use!
+In a browser, check out https://funkykingston.herokuapp.com/v1/models/model. This is equivalent to sending a *GET* request to the particular URL. Thus, we can see that the app is online. Next up, putting it to use!
 
 
 ## Query the deployed TensorFlow model using the predict API
 
 To send a predict request to the deployed model, in a terminal, run:
 
-`curl -d '{"instances": [1.0, 2.0, 5.0]}' -X POST http://funky-tensorflow-serving.herokuapp.com/v1/models/model:predict`
+`curl -d '{"instances": [1.0, 2.0, 5.0]}' -X POST http://funkykingston.herokuapp.com/v1/models/model:predict`
 
 This sends the data `{"instances": [1.0, 2.0, 5.0]}`, in accordance with the API format describe at https://www.tensorflow.org/tfx/serving/api_rest. The model that is serving us from within the deployed Docker container takes each input in the list of data and outputs the model's prediction for each input.
 
